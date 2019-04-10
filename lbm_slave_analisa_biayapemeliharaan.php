@@ -201,7 +201,7 @@ while($rData=mysql_fetch_assoc($qData))
 $sData2="select  sum(a.jumlah) as jumlah,a.kodekegiatan  from ".$dbname.".keu_jurnaldt a
         left join ".$dbname.".setup_kegiatan b on a.kodekegiatan=b.kodekegiatan where
         left(a.tanggal,7) between '".$tahun."-01' and  '".$periode."' 
-        and nojurnal like '%".$unit."%' and b.kelompok='TM' and a.kodekegiatan!='' and jumlah>0
+        and nojurnal like '%".$unit."%' and a.kodeblok!='' and b.kelompok='TM' and a.kodekegiatan!='' and jumlah>0
         group by a.kodekegiatan";
 if($afdId!='')
 {
@@ -211,6 +211,7 @@ if($afdId!='')
         and kodeblok like '".$afdId."%' and b.kelompok='TM' and a.kodekegiatan!='' and jumlah>0
         group by a.kodekegiatan"; 
 }
+
 $qData2=mysql_query($sData2) or die(mysql_error($conn));
 while($rData2=mysql_fetch_assoc($qData2))
 {
