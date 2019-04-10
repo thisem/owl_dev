@@ -460,7 +460,7 @@ switch($proses) {
         
         
         break;
-    default:
+    default: echo "Warning proses = ".$proses;
 }
 
 function createSaldoAwal($dariperiode,$keperiode,$kodeorg)
@@ -470,6 +470,7 @@ function createSaldoAwal($dariperiode,$keperiode,$kodeorg)
     global $akunRAT;
     global $akunCLM;
     global $akunCLY;
+    global $nojurnal;
     $sawal=Array();
     $mtdebet=Array();
     $mtkredit=Array();
@@ -484,6 +485,8 @@ function createSaldoAwal($dariperiode,$keperiode,$kodeorg)
         $mtdebet[$bar[1]]=0;
         $mtkredit[$bar[1]]=0;
         $salak[$bar[1]]=$bar[0];
+
+        $totalSaldoSebelumnya+=$bar[0];
     }
     #ambil transaksi transaksi bln berjalan
     $str="select debet,kredit,noakun from ".$dbname.".keu_jurnalsum_vw 
@@ -600,7 +603,36 @@ function createSaldoAwal($dariperiode,$keperiode,$kodeorg)
            exit("Error insert laba ditahan pada saldo awal ".mysql_error($conn));
        }  
      }
-    }  
+    } 
+
+
+
+    #CHECKING ULANG
+
+    $sql="select * from ".$dbname.".keu_saldobulanan where periode='".str_replace("-", "", $dariperiode)."' and kodeorg='".$kodeorg."'";
+    $q=mysql_query($sql);
+    $s1=mysql_fetch_assoc($q);
+    $totalSaldoSebelumnya = $s1["awal".substr($dariperiode,5,2)];
+    $totalDebitKredit     = $s1["debet".substr($dariperiode,5,2)]- $s1["kredit".substr($dariperiode,5,2)];
+    
+
+    $sql="select awal".substr($keperiode,5,2)." from ".$dbname.".keu_saldobulanan where periode='".str_replace("-", "", $keperiode)."' and kodeorg='".$kodeorg."'";
+    $q=mysql_query($sql);
+    $s2=mysql_fetch_assoc($q);
+    $totalSaldoAwal = $s2["awal".substr($keperiode,5,2)];
+    
+
+    if($totalSaldoAwal!=($totalSaldoSebelumnya+$totalDebitKredit)){
+        # Rollback, Delete Header
+        $RBDet = deleteQuery($dbname,'keu_jurnalht',"nojurnal='".$nojurnal."'");
+        if(!mysql_query($RBDet)) {
+            echo "Rollback Delete Header Error : ".mysql_error();
+        }
+        echo $totalSaldoAwal." = ".($totalSaldoSebelumnya+$totalDebitKredit);
+        exit("Error Saldo Awal Yg terbentuk belum Sesuai, Mohon Proses Ulang");
+    }
+
+
 
 }   
 ?>
