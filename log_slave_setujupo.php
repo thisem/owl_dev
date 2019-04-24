@@ -43,6 +43,7 @@ $hrini=date('Ymd');//exit("error:$hrini");
 switch($method)
 {
 		case'setujupo1'://ind
+				recheckData();
 				$tab.="<table cellpadding=1 cellspacing=1 border=0 class=sortable width=100%>";
                 $tab.="<tr class=rowcontent><td>".$_SESSION['lang']['nopo']."</td>";
                 $tab.="<td>:</td><td><input type='text' id=nopost1 class=myinputtext value='".$_POST['nopo']."' style=width:150px; disabled />  </td></tr>";
@@ -131,6 +132,7 @@ switch($method)
 		
 		
 		case'setujupo2':
+				recheckData();
 				$tab.="<table cellpadding=1 cellspacing=1 border=0 class=sortable width=100%>";
                 $tab.="<tr class=rowcontent><td>".$_SESSION['lang']['nopo']."</td>";
                 $tab.="<td>:</td><td><input type='text' id=nopost2 class=myinputtext value='".$_POST['nopo']."' style=width:150px; disabled /> </td></tr>";
@@ -213,6 +215,7 @@ switch($method)
 	
 	
 		case'setujupo3'://ind
+				recheckData();
 				$tab.="<table cellpadding=1 cellspacing=1 border=0 class=sortable width=100%>";
                 $tab.="<tr class=rowcontent><td>".$_SESSION['lang']['nopo']."</td>";
                 $tab.="<td>:</td><td><input type='text' id=nopost3 class=myinputtext value='".$_POST['nopo']."' style=width:150px; disabled /></td></tr>";
@@ -520,6 +523,30 @@ switch($method)
 
 	
 	default;	
+}
+
+function recheckData(){
+    global $dbname;
+    $nopo = $_POST['nopo'];
+
+    $sql="select * from ".$dbname.".log_podt where nopo ='".$nopo."'";
+    $q = mysql_query($sql) or die(mysql_error());
+    while($r = mysql_fetch_assoc($q)){
+        $dt += $r['jumlahpesan']*$r['hargasatuan'];
+    }
+
+
+    $sql="select * from ".$dbname.".log_poht where nopo ='".$nopo."'";
+    $q = mysql_query($sql) or die(mysql_error());
+    while($r = mysql_fetch_assoc($q)){
+        $ht  = $r['nilaipo'];
+        $pajak = $r['ppn']+$r["pph"]+$r['ppl'];
+    }
+
+    
+    if($ht!=($dt+$pajak)){
+        exit("error : Data Total Belum Sesuai, Mohon hubungi bagian Purchasing!");
+    }
 }
 
 ?>

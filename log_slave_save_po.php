@@ -901,6 +901,7 @@
 
 
 		case'getTandaTangan':
+                    recheckData();
 
 					$sGetApp="select karyawanid from ".$dbname.".setup_approval where applikasi like '%PO%'";
 					$qGetApp = mysql_query($sGetApp);
@@ -1099,6 +1100,31 @@
                    }
                 break;
 	}
+
+
+    function recheckData(){
+        global $dbname;
+        $nopo = $_POST['nopo'];
+
+        $sql="select * from ".$dbname.".log_podt where nopo ='".$nopo."'";
+        $q = mysql_query($sql) or die(mysql_error());
+        while($r = mysql_fetch_assoc($q)){
+            $dt += $r['jumlahpesan']*$r['hargasatuan'];
+        }
+
+
+        $sql="select * from ".$dbname.".log_poht where nopo ='".$nopo."'";
+        $q = mysql_query($sql) or die(mysql_error());
+        while($r = mysql_fetch_assoc($q)){
+            $ht  = $r['nilaipo'];
+            $pajak = $r['ppn']+$r["pph"]+$r['ppl'];
+        }
+
+        
+        if($ht!=($dt+$pajak)){
+            exit("error : Data Total Belum Sesuai, Mohon periksa kembali detail PO!");
+        }
+    }
 
 
 
