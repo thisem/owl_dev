@@ -1122,7 +1122,7 @@
 
         
         if($ht!=($dt+$pajak)){
-            exit("error : Data Total Belum Sesuai, Mohon periksa kembali detail PO!");
+            exit("error : Nilai PO (Total) belum sesuai, Mohon periksa kembali detail PO!");
         }
     }
 
